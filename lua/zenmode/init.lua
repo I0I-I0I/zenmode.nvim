@@ -2,20 +2,12 @@
 ---@field default_width integer
 ---@field toggle_opts table | nil
 
----@class Windows
----@field M integer
----@field H integer
----@field L integer
-
 ---@class Buitlin
 ---@field toggle fun(input_width: integer | nil)
 ---@field open fun(input_width: integer | nil)
 ---@field close fun()
 
 local M = {}
-
----@type Windows[]
-local tabs = {}
 
 local saved_opts = nil
 
@@ -25,6 +17,7 @@ local opts = {
 }
 
 local utils = require("zenmode.utils")
+local Tabs = require("zenmode.tabs")
 
 ---@param user_opts Opts | {}
 function M.setup(user_opts)
@@ -46,45 +39,76 @@ function M.setup(user_opts)
     vim.api.nvim_create_user_command("ZenmodeOpen", function(input)
         M.zenmode_open(tonumber(input.fargs[1]))
     end, { nargs = "?" })
+
+    vim.api.nvim_create_autocmd("TabNew", {
+        callback = function()
+            if #Tabs.tabs ~= 0 then
+                M.zenmode_open()
+            end
+        end
+    })
+
+    vim.api.nvim_create_autocmd("TabClosed", {
+        callback = function()
+            local editor_tabs = vim.api.nvim_list_tabpages()
+            Tabs.update(editor_tabs)
+        end
+    })
 end
 
 ---@param input_width integer | nil
 function M.zenmode_open(input_width)
-    if #tabs ~= 0 then
+    if #Tabs.tabs >= #vim.api.nvim_list_tabpages() then
         return
     end
 
     input_width = input_width or opts.default_width
+    saved_opts = utils.save_opts(opts.toggle_opts)
 
     local start_tab = vim.api.nvim_get_current_tabpage()
     local editor_tabs = vim.api.nvim_list_tabpages()
 
-    saved_opts = utils.save_opts(opts.toggle_opts)
-
     for _, current_tab in pairs(editor_tabs) do
+        if Tabs.include(current_tab) then
+            goto continue
+        end
+
         vim.api.nvim_set_current_tabpage(current_tab)
-        tabs[current_tab] = utils.zenmode_open_one(input_width)
+        table.insert(Tabs.tabs, utils.zenmode_open_one(input_width))
         utils.apply_opts(opts.toggle_opts)
+
+        ::continue::
     end
 
     vim.api.nvim_set_current_tabpage(start_tab)
 end
 
 function M.zenmode_close()
-    if #tabs == 0 then
+    if #Tabs.tabs == 0 then
         return
     end
 
-    for current_tab, _ in pairs(tabs) do
-        utils.zenmode_close_one(tabs[current_tab])
+    local editor_tabs = vim.api.nvim_list_tabpages()
+
+    for _, current_tab in pairs(editor_tabs) do
+        local tab = Tabs.get(current_tab)
+        if not tab then
+            goto continue
+        end
+
+        utils.zenmode_close_one(tab.tab)
         utils.apply_opts(saved_opts)
-        tabs[current_tab] = nil
+        Tabs.tabs[tab.idx] = nil
+
+        ::continue::
     end
+
+    Tabs.tabs = {}
 end
 
 ---@param input_width integer | nil
 function M.zenmode_toggle(input_width)
-    if #tabs == 0 then
+    if #Tabs.tabs < #vim.api.nvim_list_tabpages() then
         M.zenmode_open(input_width)
     else
         M.zenmode_close()
