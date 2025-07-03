@@ -58,7 +58,7 @@ function M.zenmode_open_one(width)
         "fillchars",
         "vert: ",
         {
-            scope = "local",
+            scope = "global",
             win = cur_win
         }
     )
