@@ -7,7 +7,7 @@
 ---@field H integer
 ---@field L integer
 
----@class Buitlins
+---@class Buitlin
 ---@field toggle fun(input_width: integer | nil)
 ---@field open fun(input_width: integer | nil)
 ---@field close fun()
@@ -91,8 +91,8 @@ function M.zenmode_toggle(input_width)
     end
 end
 
----@return Buitlins
-function M.builtins()
+---@return Buitlin
+function M.builtin()
     return {
         toggle = M.zenmode_toggle,
         open = M.zenmode_open,
@@ -102,5 +102,5 @@ end
 
 return {
     setup = M.setup,
-    builtins = M.builtins
+    builtin = M.builtin
 }

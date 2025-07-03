@@ -28,16 +28,16 @@ M.opts = {
 }
 
 M.keys = function()
-    ---@class Buitlins
+    ---@class Buitlin
     ---@field toggle fun(input_width: integer | nil)
     ---@field open fun(input_width: integer | nil)
     ---@field close fun()
-    local builtins = require("zenmode.nvim").builtins()
+    local builtin = require("zenmode.nvim").builtin()
 
     return {
-        { "<leader>zt", function() builtins.toggle() end, { silent = true } },
-        { "<leader>zo", function() builtins.open() end,   { silent = true } },
-        { "<leader>zc", function() builtins.close() end,  { silent = true } }
+        { "<leader>zt", function() builtin.toggle() end, { silent = true } },
+        { "<leader>zo", function() builtin.open() end,   { silent = true } },
+        { "<leader>zc", function() builtin.close() end,  { silent = true } }
     }
 end
 
