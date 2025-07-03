@@ -44,7 +44,6 @@ function M.setup(user_opts)
     end, { nargs = "?" })
 
     vim.api.nvim_create_user_command("ZenmodeOpen", function(input)
-        M.zenmode_close()
         M.zenmode_open(tonumber(input.fargs[1]))
     end, { nargs = "?" })
 end
