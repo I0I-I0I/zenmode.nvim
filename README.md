@@ -46,6 +46,6 @@ return M
 
 ## TODOS
 
-- [ ] listener on tab open and close events
+- [x] listener on tab open and close events
 - [ ] on\_open and on\_close
 - [ ] backdrop
