@@ -14,6 +14,18 @@ function M.apply_opts(opts)
     end
 end
 
+---@param arr any[]
+---@param val any
+---@return boolean
+function M.include(arr, val)
+    for _, value in pairs(arr) do
+        if val == value then
+            return true
+        end
+    end
+    return false
+end
+
 ---@param width integer
 ---@param direction string
 ---@return integer
