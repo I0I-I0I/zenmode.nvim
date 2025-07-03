@@ -44,3 +44,6 @@ end
 return M
 ```
 
+## TODOS
+
+- [ ] listener on tab open and close events
