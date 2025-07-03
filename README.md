@@ -48,5 +48,5 @@ return M
 
 - [x] listener on tab open and close events
 - [ ] ignore
-- [ ] on\_open and on\_close
+- [x] on\_open and on\_close
 - [ ] backdrop
