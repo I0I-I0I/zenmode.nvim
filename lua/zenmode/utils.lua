@@ -14,7 +14,7 @@ function M.apply_opts(opts)
     end
 end
 
----@param width number
+---@param width integer
 ---@param direction string
 ---@return integer
 local function create_window(width, direction)
@@ -42,7 +42,7 @@ local function create_window(width, direction)
     return win
 end
 
----@param width number
+---@param width integer
 ---@return Windows
 function M.zenmode_open_one(width)
     local cur_win = vim.fn.win_getid()
