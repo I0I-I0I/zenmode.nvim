@@ -1,6 +1,7 @@
 ---@class Opts
 ---@field default_width integer
 ---@field toggle_opts table | nil
+---@field ignore string[] | nil
 
 ---@class Buitlin
 ---@field toggle fun(input_width: integer | nil)
@@ -9,7 +10,6 @@
 
 local M = {}
 
-local saved_opts = nil
 
 ---@type Opts
 local opts = {
@@ -19,6 +19,14 @@ local opts = {
 local utils = require("zenmode.utils")
 local Tabs = require("zenmode.tabs")
 
+local saved_opts = nil
+
+vim.api.nvim_create_autocmd("VimEnter", {
+    callback = function()
+        saved_opts = utils.save_opts(opts.toggle_opts)
+    end
+})
+
 ---@param user_opts Opts | {}
 function M.setup(user_opts)
     if not user_opts then
@@ -27,6 +35,7 @@ function M.setup(user_opts)
 
     opts.default_width = user_opts.default_width or opts.default_width
     opts.toggle_opts = user_opts.toggle_opts or opts.toggle_opts
+    opts.ignore = user_opts.ignore or opts.ignore
 
     vim.api.nvim_create_user_command("ZenmodeToggle", function(input)
         M.zenmode_toggle(tonumber(input.fargs[1]))
@@ -63,7 +72,6 @@ function M.zenmode_open(input_width)
     end
 
     input_width = input_width or opts.default_width
-    saved_opts = utils.save_opts(opts.toggle_opts)
 
     local start_tab = vim.api.nvim_get_current_tabpage()
     local editor_tabs = vim.api.nvim_list_tabpages()
@@ -89,6 +97,7 @@ function M.zenmode_close()
     end
 
     local editor_tabs = vim.api.nvim_list_tabpages()
+    local main_tab = vim.api.nvim_get_current_tabpage()
 
     for _, current_tab in pairs(editor_tabs) do
         local tab = Tabs.get(current_tab)
@@ -96,6 +105,7 @@ function M.zenmode_close()
             goto continue
         end
 
+        vim.api.nvim_set_current_tabpage(current_tab)
         utils.zenmode_close_one(tab.tab)
         utils.apply_opts(saved_opts)
         Tabs.tabs[tab.idx] = nil
@@ -104,6 +114,7 @@ function M.zenmode_close()
     end
 
     Tabs.tabs = {}
+    vim.api.nvim_set_current_tabpage(main_tab)
 end
 
 ---@param input_width integer | nil
