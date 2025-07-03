@@ -1,5 +1,19 @@
 local M = {}
 
+function M.save_opts(opts)
+    local saved_opts = {}
+    for opt, _ in pairs(opts) do
+        saved_opts[opt] = vim.opt[opt]
+    end
+    return saved_opts
+end
+
+function M.apply_opts(opts)
+    for opt, value in pairs(opts) do
+        vim.opt[opt] = value
+    end
+end
+
 ---@param width number
 ---@param direction string
 ---@return integer
@@ -35,6 +49,7 @@ function M.zenmode_open_one(width)
 
     ---@type Windows
     local windows = {
+        M = cur_win,
         H = create_window(width, "H"),
         L = create_window(width, "L")
     }
