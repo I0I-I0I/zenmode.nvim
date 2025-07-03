@@ -43,6 +43,10 @@ end
 
 ---@param input_width integer | nil
 function M.zenmode_open(input_width)
+    if #tabs ~= 0 then
+        return
+    end
+
     input_width = input_width or opts.default_width
 
     local start_tab = vim.api.nvim_get_current_tabpage()
@@ -57,6 +61,10 @@ function M.zenmode_open(input_width)
 end
 
 function M.zenmode_close()
+    if #tabs == 0 then
+        return
+    end
+
     for tab, _ in pairs(tabs) do
         utils.zenmode_close_one(tabs[tab])
         tabs[tab] = nil
@@ -81,5 +89,6 @@ function M.builtins()
 end
 
 return {
-    setup = M.setup
+    setup = M.setup,
+    builtins = M.builtins
 }
