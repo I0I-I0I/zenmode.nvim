@@ -43,15 +43,16 @@ local function create_window(width, direction)
 end
 
 ---@param width integer
----@return Windows
+---@return Tab
 function M.zenmode_open_one(width)
     local cur_win = vim.fn.win_getid()
 
-    ---@type Windows
-    local windows = {
+    ---@type Tab
+    local tab = {
         M = cur_win,
         H = create_window(width, "H"),
-        L = create_window(width, "L")
+        L = create_window(width, "L"),
+        id = vim.api.nvim_get_current_tabpage()
     }
 
     vim.api.nvim_set_option_value(
@@ -65,13 +66,13 @@ function M.zenmode_open_one(width)
 
     vim.api.nvim_set_current_win(cur_win)
 
-    return windows
+    return tab
 end
 
----@param windows Windows
-function M.zenmode_close_one(windows)
-    vim.api.nvim_win_close(windows.H, true)
-    vim.api.nvim_win_close(windows.L, true)
+---@param tab Tab
+function M.zenmode_close_one(tab)
+    vim.api.nvim_win_close(tab.H, true)
+    vim.api.nvim_win_close(tab.L, true)
 end
 
 return M
