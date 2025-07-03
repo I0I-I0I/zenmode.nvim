@@ -34,6 +34,19 @@ function M.setup(user_opts)
 
     opts.default_width = user_opts.default_width or opts.default_width
     opts.toggle_opts = user_opts.toggle_opts or opts.toggle_opts
+
+    vim.api.nvim_create_user_command("ZenmodeToggle", function(input)
+        M.zenmode_toggle(tonumber(input.fargs[1]))
+    end, { nargs = "?" })
+
+    vim.api.nvim_create_user_command("ZenmodeClose", function()
+        M.zenmode_close()
+    end, { nargs = "?" })
+
+    vim.api.nvim_create_user_command("ZenmodeOpen", function(input)
+        M.zenmode_close()
+        M.zenmode_open(tonumber(input.fargs[1]))
+    end, { nargs = "?" })
 end
 
 ---@param input_width integer | nil
