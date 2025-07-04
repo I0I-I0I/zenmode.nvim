@@ -18,6 +18,8 @@ M.cmd = {
 ---@class Opts
 ---@field default_width integer | nil
 ---@field toggle_opts table | nil
+---@field on_open fun() | nil
+---@field on_close fun() | nil
 M.opts = {
     default_width = 30,
     toggle_opts = {
