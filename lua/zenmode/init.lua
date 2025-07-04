@@ -2,6 +2,8 @@
 ---@field default_width integer
 ---@field toggle_opts table | nil
 ---@field ignore string[]
+---@field on_open fun()
+---@field on_close fun()
 
 ---@class Buitlin
 ---@field toggle fun(input_width: integer | nil)
@@ -13,7 +15,9 @@ local M = {}
 ---@type Opts
 local opts = {
     default_width = 30,
-    ignore = { "lua" }
+    ignore = { "lua" },
+    on_open = function() end,
+    on_close = function() end
 }
 
 local utils = require("zenmode.utils")
@@ -29,6 +33,8 @@ function M.setup(user_opts)
 
     opts.default_width = user_opts.default_width or opts.default_width
     opts.toggle_opts = user_opts.toggle_opts or opts.toggle_opts
+    opts.on_open = user_opts.on_open or opts.on_open
+    opts.on_close = user_opts.on_close or opts.on_close
     opts.ignore = user_opts.ignore or opts.ignore
 
     vim.api.nvim_create_user_command("ZenmodeToggle", function(input)
@@ -71,6 +77,8 @@ function M.zenmode_open(input_width)
         return
     end
 
+    opts.on_open()
+
     input_width = input_width or opts.default_width
 
     local start_tab = vim.api.nvim_get_current_tabpage()
@@ -82,10 +90,10 @@ function M.zenmode_open(input_width)
         end
 
         vim.api.nvim_set_current_tabpage(current_tab)
-        local filetype = vim.bo.filetype
-        if utils.include(opts.ignore, filetype) then
-            goto continue
-        end
+        -- local filetype = vim.bo.filetype
+        -- if utils.include(opts.ignore, filetype) then
+        --     goto continue
+        -- end
 
         table.insert(Tabs.tabs, utils.zenmode_open_one(input_width))
         utils.apply_opts(opts.toggle_opts)
@@ -111,10 +119,10 @@ function M.zenmode_close()
         end
 
         vim.api.nvim_set_current_tabpage(current_tab)
-        local filetype = vim.bo.filetype
-        if utils.include(opts.ignore, filetype) then
-            goto continue
-        end
+        -- local filetype = vim.bo.filetype
+        -- if utils.include(opts.ignore, filetype) then
+        --     goto continue
+        -- end
 
         utils.zenmode_close_one(tab.tab)
         utils.apply_opts(saved_opts)
@@ -122,6 +130,8 @@ function M.zenmode_close()
 
         ::continue::
     end
+
+    opts.on_close()
 
     Tabs.tabs = {}
     vim.api.nvim_set_current_tabpage(start_tab)
