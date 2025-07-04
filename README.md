@@ -24,7 +24,15 @@ M.opts = {
         nu = false,
         rnu = false,
         laststatus = 0
-    }
+    },
+    on_open = function()
+        vim.cmd("GitGutterDisable")
+        vim.cmd("set signcolumn=no")
+    end,
+    on_close = function()
+        vim.cmd("GitGutterEnable")
+        vim.cmd("set signcolumn=yes:2")
+    end
 }
 
 M.keys = function()
@@ -47,5 +55,5 @@ return M
 ## TODOS
 
 - [x] listener on tab open and close events
-- [ ] on\_open and on\_close
+- [x] on\_open and on\_close
 - [ ] backdrop
