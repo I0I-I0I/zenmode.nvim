@@ -4,7 +4,6 @@
 ---@field ignore string[]
 ---@field on_open fun()
 ---@field on_close fun()
----@field ignore string[]
 
 ---@class Buitlin
 ---@field toggle fun(input_width: integer | nil)
@@ -18,8 +17,7 @@ local opts = {
     default_width = 30,
     ignore = { "lua" },
     on_open = function() end,
-    on_close = function() end,
-    ignore = { "lua" }
+    on_close = function() end
 }
 
 local utils = require("zenmode.utils")
