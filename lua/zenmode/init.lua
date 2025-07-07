@@ -126,7 +126,9 @@ function M.zenmode_close()
     opts.on_close()
 
     Tabs.tabs = {}
-    vim.api.nvim_set_current_tabpage(start_tab)
+    if vim.api.nvim_tabpage_is_valid(start_tab) then
+        vim.api.nvim_set_current_tabpage(start_tab)
+    end
 end
 
 ---@param input_width integer | nil
