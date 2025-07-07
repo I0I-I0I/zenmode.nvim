@@ -83,8 +83,12 @@ end
 
 ---@param tab Tab
 function M.zenmode_close_one(tab)
-    vim.api.nvim_win_close(tab.H, true)
-    vim.api.nvim_win_close(tab.L, true)
+    if vim.api.nvim_win_is_valid(tab.H) then
+        vim.api.nvim_win_close(tab.H, true)
+    end
+    if vim.api.nvim_win_is_valid(tab.L) then
+        vim.api.nvim_win_close(tab.L, true)
+    end
 end
 
 return M
