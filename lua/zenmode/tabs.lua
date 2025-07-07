@@ -1,7 +1,11 @@
+---@class Win
+---@field bufid integer
+---@field winid integer
+
 ---@class Tab
----@field M integer
----@field H integer
----@field L integer
+---@field M Win[]
+---@field H Win
+---@field L Win
 ---@field id integer
 
 local M = {}
