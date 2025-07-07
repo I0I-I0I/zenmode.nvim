@@ -1,7 +1,6 @@
 ---@class Opts
 ---@field default_width integer
 ---@field toggle_opts table | nil
----@field ignore string[]
 ---@field on_open fun()
 ---@field on_close fun()
 
@@ -15,7 +14,6 @@ local M = {}
 ---@type Opts
 local opts = {
     default_width = 30,
-    ignore = { "lua" },
     on_open = function() end,
     on_close = function() end
 }
@@ -35,7 +33,6 @@ function M.setup(user_opts)
     opts.toggle_opts = user_opts.toggle_opts or opts.toggle_opts
     opts.on_open = user_opts.on_open or opts.on_open
     opts.on_close = user_opts.on_close or opts.on_close
-    opts.ignore = user_opts.ignore or opts.ignore
 
     vim.api.nvim_create_user_command("ZenmodeToggle", function(input)
         M.zenmode_toggle(tonumber(input.fargs[1]))
@@ -119,11 +116,6 @@ function M.zenmode_close()
         end
 
         vim.api.nvim_set_current_tabpage(current_tab)
-        -- local filetype = vim.bo.filetype
-        -- if utils.include(opts.ignore, filetype) then
-        --     goto continue
-        -- end
-
         utils.zenmode_close_one(tab.tab)
         utils.apply_opts(saved_opts)
         Tabs.tabs[tab.idx] = nil
