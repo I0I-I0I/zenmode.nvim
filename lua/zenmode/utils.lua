@@ -29,7 +29,7 @@ end
 ---@param width integer
 ---@param direction string
 ---@return integer
-local function create_window(width, direction)
+local function create_scratch_window(width, direction)
     vim.cmd("vsp")
     vim.cmd("wincmd " .. direction)
     local buf = vim.api.nvim_create_buf(false, true)
@@ -58,7 +58,7 @@ end
 ---@param H_win integer
 ---@param L_win integer
 ---@return Tab
-function M.get_tab_info(current_tab, H_win, L_win)
+local function get_tab_info(current_tab, H_win, L_win)
     ---@type Win[]
     local centred_wins = {}
     for _, win in pairs(vim.api.nvim_tabpage_list_wins(current_tab)) do
@@ -121,11 +121,11 @@ end
 function M.zenmode_open_one(width)
     local cur_win = vim.fn.win_getid()
 
-    local H_win = create_window(width, "H")
-    local L_win = create_window(width, "L")
+    local H_win = create_scratch_window(width, "H")
+    local L_win = create_scratch_window(width, "L")
     local current_tab = vim.api.nvim_get_current_tabpage()
 
-    local tab = M.get_tab_info(current_tab, H_win, L_win)
+    local tab = get_tab_info(current_tab, H_win, L_win)
 
     vim.api.nvim_set_option_value(
         "fillchars",
@@ -147,7 +147,12 @@ function M.zenmode_close_one(tab)
         vim.api.nvim_win_close(tab.H.winid, true)
     end
     if vim.api.nvim_win_is_valid(tab.L.winid) then
-        vim.api.nvim_win_close(tab.L.winid, true)
+        local ok, _ = pcall(vim.api.nvim_win_close, tab.L.winid, true)
+        if not ok then
+            vim.cmd("split")
+            vim.api.nvim_set_current_buf(vim.fn.bufnr("#"))
+            vim.api.nvim_win_close(tab.L.winid, true)
+        end
     end
 end
 

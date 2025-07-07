@@ -62,8 +62,7 @@ function M.setup(user_opts)
 
     vim.api.nvim_create_autocmd("TabClosed", {
         callback = function()
-            local editor_tabs = vim.api.nvim_list_tabpages()
-            Tabs.update_all(editor_tabs)
+            Tabs.update_all()
         end
     })
 
@@ -93,8 +92,8 @@ function M.setup(user_opts)
                     end
 
                     if #tab.M == 0 then
-                        utils.zenmode_close_one(tab)
-                        goto continue
+                        Tabs.update_all()
+                        M.zenmode_close()
                     end
 
                     ::continue::
