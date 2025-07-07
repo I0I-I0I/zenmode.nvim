@@ -87,6 +87,11 @@ function M.zenmode_open(input_width)
         end
 
         vim.api.nvim_set_current_tabpage(current_tab)
+        -- local filetype = vim.bo.filetype
+        -- if utils.include(opts.ignore, filetype) then
+        --     goto continue
+        -- end
+
         table.insert(Tabs.tabs, utils.zenmode_open_one(input_width))
         utils.apply_opts(opts.toggle_opts)
 
