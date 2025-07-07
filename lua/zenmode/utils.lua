@@ -58,7 +58,7 @@ end
 ---@param H_win integer
 ---@param L_win integer
 ---@return Tab
-function M.update_one(current_tab, H_win, L_win)
+function M.get_tab_info(current_tab, H_win, L_win)
     ---@type Win[]
     local centred_wins = {}
     for _, win in pairs(vim.api.nvim_tabpage_list_wins(current_tab)) do
@@ -88,6 +88,34 @@ function M.update_one(current_tab, H_win, L_win)
     return tab
 end
 
+---@param old_tab_info Tab
+---@return Tab
+function M.update_tab_info(old_tab_info)
+    ---@type Win[]
+    local centred_wins = {}
+    for _, win in pairs(vim.api.nvim_tabpage_list_wins(old_tab_info.id)) do
+        if win == old_tab_info.L.winid or win == old_tab_info.H.winid then
+            goto continue
+        end
+        table.insert(centred_wins, {
+            winid = win,
+            bufid = vim.api.nvim_win_get_buf(win),
+        })
+
+        ::continue::
+    end
+
+    ---@type Tab
+    local tab = {
+        M = centred_wins,
+        H = old_tab_info.H,
+        L = old_tab_info.L,
+        id = old_tab_info.id
+    }
+
+    return tab
+end
+
 ---@param width integer
 ---@return Tab
 function M.zenmode_open_one(width)
@@ -97,7 +125,7 @@ function M.zenmode_open_one(width)
     local L_win = create_window(width, "L")
     local current_tab = vim.api.nvim_get_current_tabpage()
 
-    local tab = M.update_one(current_tab, H_win, L_win)
+    local tab = M.get_tab_info(current_tab, H_win, L_win)
 
     vim.api.nvim_set_option_value(
         "fillchars",

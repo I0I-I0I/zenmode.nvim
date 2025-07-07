@@ -63,23 +63,38 @@ function M.setup(user_opts)
     vim.api.nvim_create_autocmd("TabClosed", {
         callback = function()
             local editor_tabs = vim.api.nvim_list_tabpages()
-            Tabs.update(editor_tabs)
+            Tabs.update_all(editor_tabs)
+        end
+    })
+
+    vim.api.nvim_create_autocmd("WinNew", {
+        callback = function()
+            vim.schedule(function()
+                local current_tab = vim.api.nvim_get_current_tabpage()
+                Tabs.update(current_tab)
+            end)
         end
     })
 
     vim.api.nvim_create_autocmd("WinClosed", {
         callback = function()
             vim.schedule(function()
+                local current_tab = vim.api.nvim_get_current_tabpage()
+                Tabs.update(current_tab)
+
                 for _, tab in pairs(Tabs.tabs) do
-                    for _, center_window in pairs(tab.M) do
-                        if not vim.api.nvim_win_is_valid(center_window.winid) then
-                            utils.zenmode_close_one(tab)
-                            goto continue
-                        end
-                    end
                     if not vim.api.nvim_win_is_valid(tab.H.winid)
-                            or not vim.api.nvim_win_is_valid(tab.L.winid) then
+                        or not vim.api.nvim_win_is_valid(tab.L.winid) then
                         M.zenmode_close()
+                    end
+
+                    if #tab.M > 1 then
+                        goto continue
+                    end
+
+                    if #tab.M == 0 then
+                        utils.zenmode_close_one(tab)
+                        goto continue
                     end
 
                     ::continue::
