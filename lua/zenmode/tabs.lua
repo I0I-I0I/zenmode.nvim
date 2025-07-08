@@ -39,11 +39,36 @@ function M.get(tab_id)
     end
 end
 
----@param editor_tabs integer[]
-function M.update(editor_tabs)
+function M.update_all()
+    local editor_tabs = vim.api.nvim_list_tabpages()
     for idx, tab in pairs(M.tabs) do
         if not utils.include(editor_tabs, tab.id) then
-            table.remove(M.tabs, idx)
+            M.tabs[idx] = nil
+        end
+    end
+end
+
+---@param tabid integer
+---@return Tab | nil
+function M.update(tabid)
+    ---@type Tab | nil
+    local current_tab = nil
+
+    for _, tab in pairs(M.tabs) do
+        if tab.id == tabid then
+            current_tab = tab
+        end
+    end
+
+    if not current_tab then
+        return
+    end
+
+    local new_tab_info = utils.update_tab_info(current_tab)
+
+    for idx, tab in pairs(M.tabs) do
+        if tab.id == new_tab_info.id then
+            M.tabs[idx] = new_tab_info
         end
     end
 end
