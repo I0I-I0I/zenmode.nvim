@@ -16,24 +16,25 @@ M.cmd = {
 }
 
 ---@class Opts
----@field default_width integer | nil
+---@field default_width integer
 ---@field toggle_opts table | nil
----@field on_open fun() | nil
----@field on_close fun() | nil
+---@filed untouchable_side_bufs boolean
+---@field on_open fun()
+---@field on_close fun()
 M.opts = {
     default_width = 30,
+    untouchable_side_bufs = true,
     toggle_opts = {
         nu = false,
         rnu = false,
-        laststatus = 0
+        laststatus = 0,
+        signcolumn = "no"
     },
     on_open = function()
         vim.cmd("GitGutterDisable")
-        vim.cmd("set signcolumn=no")
     end,
     on_close = function()
         vim.cmd("GitGutterEnable")
-        vim.cmd("set signcolumn=yes:2")
     end
 }
 
@@ -45,9 +46,7 @@ M.keys = function()
     local builtin = require("zenmode.nvim").builtin()
 
     return {
-        { "<leader>zt", function() builtin.toggle() end, { silent = true } },
-        { "<leader>zo", function() builtin.open() end,   { silent = true } },
-        { "<leader>zc", function() builtin.close() end,  { silent = true } }
+        { "<leader>z", function() builtin.toggle() end, { silent = true } },
     }
 end
 
@@ -56,7 +55,5 @@ return M
 
 ## TODOS
 
-- [x] listener on tab open and close events
-- [x] on\_open and on\_close
 - [ ] ignore
 - [ ] backdrop
