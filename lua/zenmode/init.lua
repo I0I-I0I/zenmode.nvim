@@ -65,12 +65,22 @@ function M.setup(user_opts)
         end
     })
 
-    vim.api.nvim_create_autocmd("WinNew", {
+    vim.api.nvim_create_autocmd("TabEnter", {
         callback = function()
-            vim.schedule(function()
-                local current_tab = vim.api.nvim_get_current_tabpage()
-                Tabs.update(current_tab)
-            end)
+            for _, tabid in pairs(vim.api.nvim_list_tabpages()) do
+                local current_tab = Tabs.get(tabid)
+
+                if not current_tab then return end
+
+                current_tab = current_tab.tab
+
+                if not vim.api.nvim_win_is_valid(current_tab.H.winid)
+                    or not vim.api.nvim_win_is_valid(current_tab.L.winid) then
+                    M.zenmode_close()
+                    M.zenmode_open(opts.default_width)
+                    Tabs.update(tabid)
+                end
+            end
         end
     })
 
@@ -78,15 +88,9 @@ function M.setup(user_opts)
         callback = function()
             vim.schedule(function()
                 local current_tab = vim.api.nvim_get_current_tabpage()
-
                 Tabs.update(current_tab)
 
                 for _, tab in pairs(Tabs.tabs) do
-                    if not vim.api.nvim_win_is_valid(tab.H.winid)
-                            or not vim.api.nvim_win_is_valid(tab.L.winid) then
-                        M.zenmode_close()
-                    end
-
                     if #tab.M > 1 then
                         goto continue
                     end
