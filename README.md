@@ -18,7 +18,7 @@ M.cmd = {
 ---@class Opts
 ---@field default_width integer
 ---@field toggle_opts table | nil
----@filed untouchable_side_bufs boolean
+---@field untouchable_side_bufs boolean
 ---@field on_open fun()
 ---@field on_close fun()
 M.opts = {
