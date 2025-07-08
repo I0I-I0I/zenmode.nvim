@@ -8,9 +8,21 @@ function M.save_opts(opts)
     return saved_opts
 end
 
+---@param opts table<string, any>
 function M.apply_opts(opts)
-    for opt, value in pairs(opts) do
-        vim.opt[opt] = value
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+        local buf = vim.api.nvim_win_get_buf(win)
+        local filetype = vim.api.nvim_get_option_value("filetype", { buf = buf })
+        if filetype == "" then
+            goto continue
+        end
+
+        for opt, value in pairs(opts) do
+            vim.api.nvim_set_current_win(win)
+            vim.opt[opt] = value
+        end
+
+        ::continue::
     end
 end
 
@@ -157,3 +169,4 @@ function M.zenmode_close_one(tab)
 end
 
 return M
+

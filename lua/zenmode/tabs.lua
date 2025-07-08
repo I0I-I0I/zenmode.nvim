@@ -49,7 +49,6 @@ function M.update_all()
 end
 
 ---@param tabid integer
----@return Tab | nil
 function M.update(tabid)
     ---@type Tab | nil
     local current_tab = nil
