@@ -1,0 +1,172 @@
+*zenmode.txt*	Distraction-free coding for Neovim
+
+==============================================================================
+CONTENTS                                     *zenmode-contents*
+
+  1. Introduction.....................................|zenmode-introduction|
+  2. Usage............................................|zenmode-usage|
+  3. Configuration....................................|zenmode-configuration|
+  4. API..............................................|zenmode-api|
+  5. License..........................................|zenmode-license|
+
+==============================================================================
+INTRODUCTION                               *zenmode-introduction*
+
+Zenmode.nvim is a distraction-free mode for Neovim, designed to keep you
+focused on your code. It centers the editor, hides UI elements, and provides a
+clean, minimalist writing space.
+
+Features:
+- Centers the editor with a customizable width.
+- Hides UI elements like the statusline, number column, etc.
+- Preserves your existing window layout.
+- Highly configurable with Lua.
+- Extensible with callbacks to run your own custom logic.
+
+==============================================================================
+USAGE                                              *zenmode-usage*
+
+The plugin provides the following commands:
+
+*:ZenmodeToggle*
+  Toggle Zen Mode. If Zen Mode is on, it will be turned off. If it is off,
+  it will be turned on.
+
+*:ZenmodeOpen*
+  Open Zen Mode.
+
+*:ZenmodeClose*
+  Close Zen Mode.
+
+You can also use the built-in functions to create your own keymappings. See
+|zenmode-api| for more details.
+
+==============================================================================
+CONFIGURATION                                *zenmode-configuration*
+
+You can configure zenmode.nvim by calling the `setup` function.
+
+Here is an example configuration with the default values:
+>lua
+  require("zenmode").setup({
+    window = {
+      options = {
+        number = false,
+        relativenumber = false,
+        cursorline = false,
+        cursorcolumn = false,
+        foldcolumn = "0",
+        list = false,
+        signcolumn = "no",
+        statusline = "",
+      }
+    },
+    default_width = 30,
+    untouchable_side_bufs = true,
+    excluded_filetypes = {
+        cmd = true,
+        pager = true,
+        qf = true,
+        dialog = true,
+        msg = true,
+    },
+    on_before_open = function() end,
+    on_after_open = function() end,
+    on_before_close = function() end,
+    on_after_close = function() end,
+  })
+<
+
+*zenmode-options*
+The following options can be configured:
+
+`window.options`
+  A table of Neovim options that will be changed when Zen Mode is toggled.
+  You can add any option here and it will be restored when you exit Zen
+  Mode.
+
+`default_width`
+  The width of the side buffers that are created to center the main
+  editing window.
+  Default: `30`
+
+`untouchable_side_bufs`
+  If `true`, you won't be able to switch to the side buffers created by
+  Zen Mode.
+  Default: `true`
+
+`excluded_filetypes`
+  A list of filetypes to exclude from Zen Mode. Windows with these
+  filetypes will not be affected.
+  Default: `{ cmd = true, pager = true, qf = true, dialog = true, msg = true }`
+
+*zenmode-callbacks*
+The following callbacks are available to hook into the Zen Mode lifecycle:
+
+`on_before_open`
+  Called just before Zen Mode is opened.
+
+`on_after_open`
+  Called after Zen Mode is fully opened.
+
+`on_before_close`
+  Called just before Zen Mode is closed.
+
+`on_after_close`
+  Called after Zen Mode is fully closed.
+
+Example using callbacks:
+>lua
+  require("zenmode").setup({
+    on_after_open = function()
+      -- Example: disable git-related plugins when entering Zen Mode
+      vim.cmd("GitGutterDisable")
+    end,
+    on_after_close = function()
+      -- Example: re-enable git-related plugins when exiting Zen Mode
+      vim.cmd("GitGutterEnable")
+    end,
+  })
+<
+
+==============================================================================
+API                                                *zenmode-api*
+
+The plugin provides a set of functions that can be used to create custom
+keymappings or to control Zen Mode from your own scripts.
+
+>lua
+  local builtin = require("zenmode").builtin()
+
+  -- Toggle Zen Mode
+  vim.keymap.set("n", "<leader>z", function()
+    builtin.toggle()
+  end, { silent = true, desc = "Toggle Zen Mode" })
+
+  -- Open Zen Mode
+  vim.keymap.set("n", "<leader>zo", function()
+    builtin.open()
+  end, { silent = true, desc = "Open Zen Mode" })
+
+  -- Close Zen Mode
+  vim.keymap.set("n", "<leader>zc", function()
+    builtin.close()
+  end, { silent = true, desc = "Close Zen Mode" })
+<
+
+`builtin.toggle()`
+  Toggles Zen Mode.
+
+`builtin.open()`
+  Opens Zen Mode.
+
+`builtin.close()`
+  Closes Zen Mode.
+
+==============================================================================
+LICENSE                                            *zenmode-license*
+
+This project is licensed under the MIT License. See the LICENSE file for
+details.
+
+vim:tw=78:ts=8:sw=2:sts=2:et:ft=help:norl:
