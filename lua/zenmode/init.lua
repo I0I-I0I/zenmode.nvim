@@ -25,7 +25,6 @@ local opts = {
             cursorcolumn = false,
             foldcolumn = "0",
             list = false,
-            showtabline = 0,
             signcolumn = "no",
             statusline = "",
         }
@@ -68,7 +67,7 @@ local function _create_autocmds()
     vim.api.nvim_create_autocmd("TabNew", {
         group = group,
         callback = function()
-            if Tabs.count() > 0 then
+            if #Tabs.tabs > 0 then
                 M.zenmode_open()
             end
         end,
@@ -241,7 +240,7 @@ function M.zenmode_close()
 
         vim.api.nvim_set_current_tabpage(current_tab)
         utils.zenmode_close_one(tab)
-        Tabs.tabs[tab.id] = nil
+        Tabs.remove(tab.id)
 
         ::continue::
     end
