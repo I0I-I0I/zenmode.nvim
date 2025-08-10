@@ -170,9 +170,9 @@ function M.zenmode_open_one(width)
 
     vim.api.nvim_set_option_value(
         "fillchars",
-        "vert: ",
+        "eob: ,vert: ",
         {
-            scope = "global",
+            scope = "local",
             win = cur_win
         }
     )

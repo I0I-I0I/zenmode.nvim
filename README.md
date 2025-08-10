@@ -43,7 +43,7 @@ require("zenmode").setup({
       foldcolumn = "0",
       list = false,
       signcolumn = "no",
-      statusline = "",
+      laststatus = 0
     }
   },
   default_width = 30,
