@@ -49,113 +49,122 @@ local utils = require("zenmode.utils")
 local Tabs = require("zenmode.tabs")
 
 local saved_opts = {}
+local autocmds_created = false
 
 local function _create_autocmds()
+    if autocmds_created then
+        return
+    end
+
+    local group = vim.api.nvim_create_augroup("Zenmode", { clear = true })
+
     vim.api.nvim_create_autocmd("VimEnter", {
+        group = group,
         callback = function()
             saved_opts = utils.save_opts(M.opts.window.options)
-        end
+        end,
     })
 
     vim.api.nvim_create_autocmd("TabNew", {
+        group = group,
         callback = function()
-            if #Tabs.tabs ~= 0 then
+            if Tabs.count() > 0 then
                 M.zenmode_open()
             end
-        end
+        end,
     })
 
     vim.api.nvim_create_autocmd("TabClosed", {
+        group = group,
         callback = function()
             Tabs.update_all()
-        end
+        end,
     })
 
     vim.api.nvim_create_autocmd("TabEnter", {
+        group = group,
         callback = function()
             for _, tabid in pairs(vim.api.nvim_list_tabpages()) do
                 local current_tab = Tabs.get(tabid)
-
-                if not current_tab then return end
-
-                current_tab = current_tab.tab
-
-                if not vim.api.nvim_win_is_valid(current_tab.H.winid)
-                    or not vim.api.nvim_win_is_valid(current_tab.L.winid) then
+                if current_tab
+                    and (
+                        not vim.api.nvim_win_is_valid(current_tab.H.winid)
+                        or not vim.api.nvim_win_is_valid(current_tab.L.winid)
+                    )
+                then
                     M.zenmode_close()
-                    M.zenmode_open(opts.default_width)
+                    M.zenmode_open(M.opts.default_width)
                     Tabs.update(tabid)
                 end
             end
-        end
+        end,
     })
 
     vim.api.nvim_create_autocmd("WinClosed", {
+        group = group,
         callback = function()
             vim.schedule(function()
-                local current_tab = vim.api.nvim_get_current_tabpage()
-                Tabs.update(current_tab)
+                local current_tab_id = vim.api.nvim_get_current_tabpage()
+                Tabs.update(current_tab_id)
 
-                for _, tab in pairs(Tabs.tabs) do
-                    if #tab.M > 1 then
-                        goto continue
-                    end
-
-                    if #tab.M == 0 then
-                        utils.zenmode_close_one(tab)
-                        Tabs.update_all()
-                    end
-
-                    ::continue::
+                local tab = Tabs.get(current_tab_id)
+                if tab and #tab.M == 0 then
+                    utils.zenmode_close_one(tab)
+                    Tabs.update_all()
                 end
             end)
-        end
+        end,
     })
 
     M.window = 0
 
     vim.api.nvim_create_autocmd("WinLeave", {
+        group = group,
         callback = function()
-            if not M.opts.untouchable_side_bufs then return end
+            if not M.opts.untouchable_side_bufs then
+                return
+            end
 
             local current_win = vim.api.nvim_get_current_win()
             local tabid = vim.api.nvim_get_current_tabpage()
 
             Tabs.update(tabid)
 
-            local tab = Tabs.tabs[tabid]
+            local tab = Tabs.get(tabid)
             if not tab or not tab.H or not tab.L then
                 return
             end
 
-            if tab.H.winid == current_win or tab.L.winid == current_win then
-                return
+            if tab.H.winid ~= current_win and tab.L.winid ~= current_win then
+                M.window = current_win
             end
-
-            M.window = current_win
-        end
+        end,
     })
 
     vim.api.nvim_create_autocmd("WinEnter", {
+        group = group,
         callback = function()
-            if not M.opts.untouchable_side_bufs then return end
+            if not M.opts.untouchable_side_bufs then
+                return
+            end
 
             local current_win = vim.api.nvim_get_current_win()
             local tabid = vim.api.nvim_get_current_tabpage()
 
-            local tab = Tabs.tabs[tabid]
+            local tab = Tabs.get(tabid)
             if not tab or not tab.H or not tab.L then
                 return
             end
 
             if tab.H.winid == current_win or tab.L.winid == current_win then
-                if not vim.api.nvim_win_is_valid(M.window) then
-                    return
+                if vim.api.nvim_win_is_valid(M.window) then
+                    vim.api.nvim_set_current_win(M.window)
                 end
-                vim.api.nvim_set_current_win(M.window)
             end
-        end
+        end,
     })
+
+    autocmds_created = true
 end
 
 ---@param user_opts Opts | {}
@@ -200,10 +209,6 @@ function M.zenmode_open(input_width)
         end
 
         vim.api.nvim_set_current_tabpage(current_tab)
-        -- local filetype = vim.bo.filetype
-        -- if utils.include(M.opts.ignore, filetype) then
-        --     goto continue
-        -- end
 
         local win = utils.zenmode_open_one(input_width)
         table.insert(Tabs.tabs, win)
@@ -235,8 +240,8 @@ function M.zenmode_close()
         end
 
         vim.api.nvim_set_current_tabpage(current_tab)
-        utils.zenmode_close_one(tab.tab)
-        Tabs.tabs[tab.idx] = nil
+        utils.zenmode_close_one(tab)
+        Tabs.tabs[tab.id] = nil
 
         ::continue::
     end

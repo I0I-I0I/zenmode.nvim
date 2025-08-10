@@ -27,14 +27,11 @@ function M.include(tab_id)
 end
 
 ---@param tab_id integer
----@return { idx: integer, tab: Tab } | nil
+---@return Tab | nil
 function M.get(tab_id)
-    for idx, tab in pairs(M.tabs) do
+    for _, tab in pairs(M.tabs) do
         if tab.id == tab_id then
-            return {
-                idx = idx,
-                tab = tab
-            }
+            return tab
         end
     end
 end
