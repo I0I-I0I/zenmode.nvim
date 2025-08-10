@@ -8,6 +8,19 @@ function M.save_opts(opts)
     return saved_opts
 end
 
+---@param tab integer
+---@return integer
+function M.get_win_count(tab)
+    local total_count = 0
+    local wins = vim.api.nvim_tabpage_list_wins(tab)
+    for _, win in pairs(wins) do
+        if not M.is_excluded(win) then
+            total_count = total_count + 1
+        end
+    end
+    return total_count
+end
+
 ---@param opts table<string, any>
 function M.apply_opts(opts)
     for _, win in ipairs(vim.api.nvim_list_wins()) do
@@ -18,8 +31,14 @@ function M.apply_opts(opts)
         end
 
         for opt, value in pairs(opts) do
+            if M.is_excluded(win) then
+                goto continue
+            end
+
             vim.api.nvim_set_current_win(win)
             vim.opt[opt] = value
+
+            ::continue::
         end
 
         ::continue::
@@ -66,6 +85,14 @@ local function create_scratch_window(width, direction)
     return win
 end
 
+---@param win integer
+---@return boolean
+function M.is_excluded(win)
+    local excluded_filetypes = require("zenmode.nvim").get_opts().excluded_filetypes
+    local filetype = vim.api.nvim_get_option_value("filetype", { buf = vim.api.nvim_win_get_buf(win) })
+    return not not excluded_filetypes[filetype]
+end
+
 ---@param current_tab integer
 ---@param H_win integer
 ---@param L_win integer
@@ -75,6 +102,7 @@ local function get_tab_info(current_tab, H_win, L_win)
     local centred_wins = {}
     for _, win in pairs(vim.api.nvim_tabpage_list_wins(current_tab)) do
         if win == H_win or win == L_win then goto continue end
+        if M.is_excluded(win) then goto continue end
         table.insert(centred_wins, {
             winid = win,
             bufid = vim.api.nvim_win_get_buf(win),
@@ -109,6 +137,7 @@ function M.update_tab_info(old_tab_info)
         if win == old_tab_info.L.winid or win == old_tab_info.H.winid then
             goto continue
         end
+        if M.is_excluded(win) then goto continue end
         table.insert(centred_wins, {
             winid = win,
             bufid = vim.api.nvim_win_get_buf(win),
@@ -169,4 +198,3 @@ function M.zenmode_close_one(tab)
 end
 
 return M
-

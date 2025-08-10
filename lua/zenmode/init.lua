@@ -2,10 +2,11 @@
 ---@field default_width integer
 ---@field toggle_opts table | nil
 ---@field untouchable_side_bufs boolean
+---@field excluded_filetypes table<string, boolean>
 ---@field on_open fun()
 ---@field on_close fun()
 
----@class Buitlin
+---@class Builtin
 ---@field toggle fun(input_width: integer | nil)
 ---@field open fun(input_width: integer | nil)
 ---@field close fun()
@@ -16,6 +17,13 @@ local M = {}
 local opts = {
     default_width = 30,
     untouchable_side_bufs = true,
+    excluded_filetypes = {
+        cmd = true,
+        pager = true,
+        qf = true,
+        dialog = true,
+        msg = true,
+    },
     on_open = function() end,
     on_close = function() end
 }
@@ -31,7 +39,7 @@ function M.setup(user_opts)
         user_opts = {}
     end
 
-    opts = vim.tbl_deep_extend("force", opts, user_opts)
+    M.opts = vim.tbl_deep_extend("force", opts, user_opts)
 
     vim.api.nvim_create_user_command("ZenmodeToggle", function(input)
         M.zenmode_toggle(tonumber(input.fargs[1]))
@@ -47,7 +55,7 @@ function M.setup(user_opts)
 
     vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()
-            saved_opts = utils.save_opts(opts.toggle_opts)
+            saved_opts = utils.save_opts(M.opts.toggle_opts)
         end
     })
 
@@ -110,7 +118,7 @@ function M.setup(user_opts)
 
     vim.api.nvim_create_autocmd("WinLeave", {
         callback = function()
-            if not opts.untouchable_side_bufs then return end
+            if not M.opts.untouchable_side_bufs then return end
 
             local current_win = vim.api.nvim_get_current_win()
             local tabid = vim.api.nvim_get_current_tabpage()
@@ -132,7 +140,7 @@ function M.setup(user_opts)
 
     vim.api.nvim_create_autocmd("WinEnter", {
         callback = function()
-            if not opts.untouchable_side_bufs then return end
+            if not M.opts.untouchable_side_bufs then return end
 
             local current_win = vim.api.nvim_get_current_win()
             local tabid = vim.api.nvim_get_current_tabpage()
@@ -158,9 +166,9 @@ function M.zenmode_open(input_width)
         return
     end
 
-    opts.on_open()
+    M.opts.on_open()
 
-    input_width = input_width or opts.default_width
+    input_width = input_width or M.opts.default_width
 
     local start_tab = vim.api.nvim_get_current_tabpage()
     local editor_tabs = vim.api.nvim_list_tabpages()
@@ -172,16 +180,17 @@ function M.zenmode_open(input_width)
 
         vim.api.nvim_set_current_tabpage(current_tab)
         -- local filetype = vim.bo.filetype
-        -- if utils.include(opts.ignore, filetype) then
+        -- if utils.include(M.opts.ignore, filetype) then
         --     goto continue
         -- end
 
-        table.insert(Tabs.tabs, utils.zenmode_open_one(input_width))
+        local win = utils.zenmode_open_one(input_width)
+        table.insert(Tabs.tabs, win)
 
         ::continue::
     end
 
-    utils.apply_opts(opts.toggle_opts)
+    utils.apply_opts(M.opts.toggle_opts)
 
     vim.api.nvim_set_current_tabpage(start_tab)
 end
@@ -214,7 +223,7 @@ function M.zenmode_close()
         vim.api.nvim_set_current_tabpage(start_tab)
     end
 
-    opts.on_close()
+    M.opts.on_close()
 end
 
 ---@param input_width integer | nil
@@ -226,7 +235,7 @@ function M.zenmode_toggle(input_width)
     end
 end
 
----@return Buitlin
+---@return Builtin
 function M.builtin()
     return {
         toggle = M.zenmode_toggle,
@@ -235,7 +244,13 @@ function M.builtin()
     }
 end
 
+---@return Opts
+function M.get_opts()
+    return M.opts
+end
+
 return {
     setup = M.setup,
-    builtin = M.builtin
+    builtin = M.builtin,
+    get_opts = M.get_opts
 }
