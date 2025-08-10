@@ -43,7 +43,7 @@ function M.update_all()
     local editor_tabs = vim.api.nvim_list_tabpages()
     for idx, tab in pairs(M.tabs) do
         if not utils.include(editor_tabs, tab.id) then
-            M.tabs[idx] = nil
+            table.remove(M.tabs, idx)
         end
     end
 end
