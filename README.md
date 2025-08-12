@@ -2,6 +2,8 @@
 
 A distraction-free mode for Neovim, designed to keep you focused.
 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6022a1dc-9c46-47c9-9fe3-d6ceed619b00" />
+
 ## Features
 
 - Centers the editor with customizable width.
