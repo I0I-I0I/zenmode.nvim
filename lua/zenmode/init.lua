@@ -1,5 +1,5 @@
 ---@class Opts
----@field window table
+---@field options table
 ---@field default_width integer
 ---@field untouchable_side_bufs boolean
 ---@field excluded_filetypes table<string, boolean>
@@ -17,17 +17,15 @@ local M = {}
 
 ---@type Opts
 local opts = {
-    window = {
-        options = {
-            number = false,
-            relativenumber = false,
-            cursorline = false,
-            cursorcolumn = false,
-            foldcolumn = "0",
-            list = false,
-            signcolumn = "no",
-            laststatus = 0,
-        }
+    options = {
+        number = false,
+        relativenumber = false,
+        cursorline = false,
+        cursorcolumn = false,
+        foldcolumn = "0",
+        list = false,
+        signcolumn = "no",
+        laststatus = 0,
     },
     default_width = 30,
     untouchable_side_bufs = true,
@@ -60,7 +58,7 @@ local function _create_autocmds()
     vim.api.nvim_create_autocmd("VimEnter", {
         group = group,
         callback = function()
-            saved_opts = utils.save_opts(M.opts.window.options)
+            saved_opts = utils.save_opts(M.opts.options)
         end,
     })
 
@@ -173,6 +171,7 @@ function M.setup(user_opts)
     end
 
     M.opts = vim.tbl_deep_extend("force", opts, user_opts)
+    M.opts.options = user_opts.options or M.opts.options
 
     vim.api.nvim_create_user_command("ZenmodeToggle", function(input)
         M.zenmode_toggle(tonumber(input.fargs[1]))
@@ -215,7 +214,7 @@ function M.zenmode_open(input_width)
         ::continue::
     end
 
-    utils.apply_opts(M.opts.window.options)
+    utils.apply_opts(M.opts.options)
 
     vim.api.nvim_set_current_tabpage(start_tab)
 
