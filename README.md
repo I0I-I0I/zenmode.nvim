@@ -18,13 +18,13 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-  "i0i-i0i/zenmode.nvim",
-  config = function()
-    require("zenmode").setup({
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-    })
-  end,
+    "i0i-i0i/zenmode.nvim",
+    config = function()
+        require("zenmode").setup({
+            -- your configuration comes here
+            -- or leave it empty to use the default settings
+        })
+    end,
 }
 ```
 
@@ -34,33 +34,31 @@ Here is an example of a more complete configuration with the default values:
 
 ```lua
 require("zenmode").setup({
-  window = {
     options = {
-      -- These are the Neovim options that will be changed when Zen Mode is toggled.
-      -- You can add any option here and it will be restored when you exit Zen Mode.
-      number = false,
-      relativenumber = false,
-      cursorline = false,
-      cursorcolumn = false,
-      foldcolumn = "0",
-      list = false,
-      signcolumn = "no",
-      laststatus = 0
-    }
-  },
-  default_width = 30,
-  untouchable_side_bufs = true,
-  -- You can override the default callbacks here
-  on_before_open = function() end,
-  on_after_open = function()
-    -- Example: disable git-related plugins when entering Zen Mode
-    vim.cmd("GitGutterDisable")
-  end,
-  on_before_close = function() end,
-  on_after_close = function()
-    -- Example: re-enable git-related plugins when exiting Zen Mode
-    vim.cmd("GitGutterEnable")
-  end,
+        -- These are the Neovim options that will be changed when Zen Mode is toggled.
+        -- You can add any option here and it will be restored when you exit Zen Mode.
+        number = false,
+        relativenumber = false,
+        cursorline = false,
+        cursorcolumn = false,
+        foldcolumn = "0",
+        list = false,
+        signcolumn = "no",
+        laststatus = 0,
+    },
+    default_width = 30,
+    untouchable_side_bufs = true,
+    -- You can override the default callbacks here
+    on_before_open = function() end,
+    on_after_open = function()
+        -- Example: disable git-related plugins when entering Zen Mode
+        vim.cmd("GitGutterDisable")
+    end,
+    on_before_close = function() end,
+    on_after_close = function()
+        -- Example: re-enable git-related plugins when exiting Zen Mode
+        vim.cmd("GitGutterEnable")
+    end,
 })
 ```
 
@@ -87,7 +85,7 @@ You can also use the built-in functions to create your own keymappings:
 local builtin = require("zenmode").builtin()
 
 vim.keymap.set("n", "<leader>z", function()
-  builtin.toggle()
+    builtin.toggle()
 end, { silent = true, desc = "Toggle Zen Mode" })
 -- vim.keymap.set("n", "<leader>zo", function()
 --   builtin.open()

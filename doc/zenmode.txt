@@ -49,18 +49,16 @@ You can configure zenmode.nvim by calling the `setup` function.
 Here is an example configuration with the default values:
 >lua
   require("zenmode").setup({
-    window = {
-      options = {
-        number = false,
-        relativenumber = false,
-        cursorline = false,
-        cursorcolumn = false,
-        foldcolumn = "0",
-        list = false,
-        signcolumn = "no",
-        statusline = "",
-      }
-    },
+    options = {
+      number = false,
+      relativenumber = false,
+      cursorline = false,
+      cursorcolumn = false,
+      foldcolumn = "0",
+      list = false,
+      signcolumn = "no",
+      statusline = "",
+    }
     default_width = 30,
     untouchable_side_bufs = true,
     excluded_filetypes = {
